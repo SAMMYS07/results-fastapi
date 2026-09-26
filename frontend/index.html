@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Portal</title>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+         :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-bg: #ecfdf5;
+            --success-text: #047857;
+            --danger-bg: #fef2f2;
+            --danger-text: #b91c1c;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            color: var(--text-main);
+        }
+        
+        .portal-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 620px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            padding: 32px 32px 24px;
+            text-align: center;
+            background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header .icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 6px;
+        }
+        
+        .content {
+            padding: 32px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        
+        .input-wrapper input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            color: var(--text-main);
+        }
+        
+        .input-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+        
+        .btn-search {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 0 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        
+        .btn-search:hover {
+            background: var(--primary-hover);
+        }
+        
+        .btn-search:active {
+            transform: scale(0.98);
+        }
+        /* Loading Spinner */
+        
+        .spinner {
+            display: none;
+            text-align: center;
+            padding: 32px 0;
+        }
+        
+        .spinner-circle {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        /* Result Card */
+        
+        .result-container {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .student-profile {
+            background: #f8fafc;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .student-info h2 {
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        
+        .student-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+        
+        .student-meta strong {
+            color: var(--text-main);
+        }
+        
+        .badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        /* Results Table */
+        
+        .table-wrap {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        
+        th {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 18px;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 14px 18px;
+            font-size: 0.95rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+        
+        tr:hover td {
+            background: #fafafa;
+        }
+        /* Grade Badges */
+        
+        .grade-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .grade-A {
+            background: var(--success-bg);
+            color: var(--success-text);
+        }
+        
+        .grade-B {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        
+        .grade-C {
+            background: #fffbeb;
+            color: #b45309;
+        }
+        
+        .grade-F {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+        }
+        /* Print / Action Buttons */
+        
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-outline:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        /* Status Messages */
+        
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            margin-top: 8px;
+        }
+        
+        .alert-danger {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            border: 1px solid #fecaca;
+        }
+        
+        .alert-warning {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fef3c7;
+        }
+        
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+            }
+            .portal-card {
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+            }
+            .search-box,
+            .btn-outline,
+            .header p {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="portal-card">
+        <div class="header">
+            <div class="icon">🎓</div>
+            <h1>Student Result Portal</h1>
+            <p>Enter your registration number to view your examination marksheet</p>
+        </div>
+
+        <div class="content">
+            <div class="search-box">
+                <div class="input-wrapper">
+                    <input type="text" id="register_number" placeholder="e.g., 2026CS101" autocomplete="off" onkeydown="if(event.key === 'Enter') searchResult()" />
+                </div>
+                <button class="btn-search" onclick="searchResult()">
+                    Search
+                </button>
+            </div>
+
+            <!-- Loader -->
+            <div id="loader" class="spinner">
+                <div class="spinner-circle"></div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Fetching records...</p>
+            </div>
+
+            <!-- Result Box -->
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function searchResult() {
+            const regInput = document.getElementById("register_number");
+            const resultBox = document.getElementById("result");
+            const loader = document.getElementById("loader");
+            const registerNumber = regInput.value.trim();
+
+            if (!registerNumber) {
+                resultBox.innerHTML = `
+                    <div class="alert alert-warning">
+                        ⚠️ Please enter a registration number first.
+                    </div>
+                `;
+                return;
+            }
+
+            // Show loading state
+            resultBox.innerHTML = "";
+            loader.style.display = "block";
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/results");
+
+                if (!response.ok) {
+                    throw new Error(`Server returned status: ${response.status}`);
+                }
+
+                const students = await response.json();
+                loader.style.display = "none";
+
+                // Case-insensitive match on registration number
+                const student = students.find(
+                    s => s.register_number && s.register_number.toString().toLowerCase() === registerNumber.toLowerCase()
+                );
+
+                if (student) {
+                    let rowsHtml = "";
+                    (student.subjects || []).forEach(sub => {
+                        const gradeInitial = sub.grade ? sub.grade.charAt(0).toUpperCase() : "-";
+                        rowsHtml += `
+                            <tr>
+                                <td><strong>${sub.subject_name}</strong></td>
+                                <td style="text-align: right;">
+                                    <span class="grade-pill grade-${gradeInitial}">
+                                        ${sub.grade}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    resultBox.innerHTML = `
+                        <div class="result-container">
+                            <div class="student-profile">
+                                <div class="student-info">
+                                    <h2>${student.student_name}</h2>
+                                    <div class="student-meta">
+                                        <p><strong>Reg No:</strong> ${student.register_number}</p>
+                                        <p><strong>Department:</strong> ${student.department || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <span class="badge">Verified Student</span>
+                            </div>
+
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th style="text-align: right;">Grade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rowsHtml}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="actions">
+                                <button class="btn-outline" onclick="window.print()">🖨️ Print Marksheet</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultBox.innerHTML = `
+                        <div class="alert alert-danger">
+                            ❌ No records found for registration number: <strong>${escapeHtml(registerNumber)}</strong>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                loader.style.display = "none";
+                resultBox.innerHTML = `
+                    <div class="alert alert-danger">
+                        <div>
+                            <strong>Unable to fetch results.</strong><br>
+                            <span style="font-size: 0.85rem;">Ensure your FastAPI server is running at <code>http://127.0.0.1:8000</code> and has <code>CORSMiddleware</code> enabled.</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Basic helper to prevent XSS in displayed search terms
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+
+</html>
